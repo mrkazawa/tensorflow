@@ -15,13 +15,13 @@ print(x_test.shape[0], 'test set')
 # Define the text labels
 fashion_mnist_labels = ["T-shirt/top",  # index 0
                         "Trouser",      # index 1
-                        "Pullover",     # index 2 
-                        "Dress",        # index 3 
+                        "Pullover",     # index 2
+                        "Dress",        # index 3
                         "Coat",         # index 4
                         "Sandal",       # index 5
-                        "Shirt",        # index 6 
-                        "Sneaker",      # index 7 
-                        "Bag",          # index 8 
+                        "Shirt",        # index 6
+                        "Sneaker",      # index 7
+                        "Bag",          # index 8
                         "Ankle boot"]   # index 9
 
 # Image index, you can pick any number between 0 and 59,999
@@ -29,11 +29,11 @@ img_index = 5
 # y_train contains the lables, ranging from 0 to 9
 label_index = y_train[img_index]
 # Print the label, for example 2 Pullover
-print ("y = " + str(label_index) + " " +(fashion_mnist_labels[label_index]))
+print("y = " + str(label_index) + " " + (fashion_mnist_labels[label_index]))
 # Show one of the images from the training dataset
 # Uncomment to show
-#plt.imshow(x_train[img_index])
-#plt.show()
+# plt.imshow(x_train[img_index])
+# plt.show()
 
 print("---------- Data Normalization ----------")
 
@@ -45,7 +45,7 @@ print("Number of train data - " + str(len(x_train)))
 print("Number of test data - " + str(len(x_test)))
 
 # Further break training data into train / validation sets (# put 5000 into validation set and keep remaining 55,000 for train)
-(x_train, x_valid) = x_train[5000:], x_train[:5000] 
+(x_train, x_valid) = x_train[5000:], x_train[:5000]
 (y_train, y_valid) = y_train[5000:], y_train[:5000]
 
 # Reshape input data from (28, 28) to (28, 28, 1)
@@ -72,11 +72,13 @@ print("---------- Modelling Layer ----------")\
 model = tf.keras.Sequential()
 
 # Must define the input shape in the first layer of the neural network
-model.add(tf.keras.layers.Conv2D(filters=64, kernel_size=2, padding='same', activation='relu', input_shape=(28,28,1))) 
+model.add(tf.keras.layers.Conv2D(filters=64, kernel_size=2,
+                                 padding='same', activation='relu', input_shape=(28, 28, 1)))
 model.add(tf.keras.layers.MaxPooling2D(pool_size=2))
 model.add(tf.keras.layers.Dropout(0.3))
 
-model.add(tf.keras.layers.Conv2D(filters=32, kernel_size=2, padding='same', activation='relu'))
+model.add(tf.keras.layers.Conv2D(
+    filters=32, kernel_size=2, padding='same', activation='relu'))
 model.add(tf.keras.layers.MaxPooling2D(pool_size=2))
 model.add(tf.keras.layers.Dropout(0.3))
 
@@ -91,16 +93,17 @@ model.summary()
 print("---------- Training ----------")
 
 model.compile(loss='categorical_crossentropy',
-             optimizer='adam',
-             metrics=['accuracy'])
+              optimizer='adam',
+              metrics=['accuracy'])
 # We use the ModelCheckpoint API to save the model after every epoch. Set "save_best_only = True" to save only when the validation accuracy improves.
-checkpointer = tf.keras.callbacks.ModelCheckpoint(filepath='./model-fmnist.h5', verbose = 1, save_best_only=True)
+checkpointer = tf.keras.callbacks.ModelCheckpoint(
+    filepath='./model-fmnist.h5', verbose=1, save_best_only=True)
 model.fit(x_train,
-         y_train,
-         batch_size=64,
-         epochs=10,
-         validation_data=(x_valid, y_valid),
-         callbacks=[checkpointer])
+          y_train,
+          batch_size=64,
+          epochs=10,
+          validation_data=(x_valid, y_valid),
+          callbacks=[checkpointer])
 
 print("---------- Testing ----------")
 
@@ -123,7 +126,7 @@ for i, index in enumerate(np.random.choice(x_test.shape[0], size=15, replace=Fal
     predict_index = np.argmax(y_hat[index])
     true_index = np.argmax(y_test[index])
     # Set the title for each image
-    ax.set_title("{} ({})".format(fashion_mnist_labels[predict_index], 
+    ax.set_title("{} ({})".format(fashion_mnist_labels[predict_index],
                                   fashion_mnist_labels[true_index]),
-                                  color=("green" if predict_index == true_index else "red"))
+                 color=("green" if predict_index == true_index else "red"))
 plt.show()
