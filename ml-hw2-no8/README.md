@@ -1,47 +1,25 @@
-# My CNN Projects
+# Machinel Learning HW 2 - No 8
 
-This repository contains my code during my study into Convolution Neural Network (CNN) using TensorFlow
+This repository contains my code to answer the Machine Learning class Homework 2 No 8. We will perform a CNN to classify the image data provided by the [Fashion-MNIST](https://github.com/zalandoresearch/fashion-mnist) dataset
 
-## Getting Started
+## Prerequisites
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
-
-### Prerequisites
-
-What things you need to install the software and how to install them
+I use TensorFlow version 1.11 to run the experiment. So, you need to install TensorFlow before running this python file
 
 ```
-pip install tensorflow
+pip install tensorflow=1.11.0
 ```
+## Scenario 8a - Preparing The Dataset
 
-### Installing
+We need to perform data normalization before we begin the training. In can be divided into several steps as follows.
 
-A step by step series of examples that tell you how to get a development env running
-
-Say what the step will be
-
-```
-Give the example
-```
-
-And repeat
-
-```
-until finished
-```
-
-End with an example of getting some data out of the system or using it for a little demo
-
-## Running the tests
-
-Explain how to run the automated tests for this system
-
-### Break down into end to end tests
+### Reshaping the image data
 
 Explain what these tests test and why
 
 ```
-Give an example
+def reshaping_image(self, x_train, x_test):
+    return x_train.reshape(x_train.shape[0], 28, 28, 1), x_test.reshape(x_test.shape[0], IMG_ROWS, IMG_COLS, 1)
 ```
 
 ### And coding style tests
