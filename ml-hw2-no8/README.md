@@ -30,12 +30,13 @@ _________________________________________________________________
 dense (Dense)                (None, 128)               147584
 _________________________________________________________________
 dense_1 (Dense)              (None, 10)                1290
-================================================================= Total params: 241,546
+=================================================================
+Total params: 241,546
 Trainable params: 241,546
 Non-trainable params: 0
 ```
 
-We will use the Model above as our default Model to run the experiment. Otherwise, if we change the model, we will states in the following sub-section.
+We will use the Model above as our default Model to run the experiment. Otherwise, if we change the model, we will state the changes in the corresponding sub-section.
 
 ## Scenario 8a - Preparing The Dataset
 
