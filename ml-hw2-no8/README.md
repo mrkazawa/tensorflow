@@ -96,13 +96,245 @@ def split_validation_data_from_train_data(self, x_train, y_train):
 
 In this scenario, we must choose between using the 'He' initilzaiton or 'Xavier' initialization. We are going to implement both of them and analyze their behaviour during training and testing.
 
+Below is the result of our implementation:
+![Result No 8b](img/result-no8b.jpeg?raw=true "result-no8b")
+
+And below is the result of the predicition test
+```
+---------- he_normal ----------
+training time: 51.38
+prediction loss: 0.2358957895487547
+prediction acc: 0.9233
+
+---------- he_uniform ----------
+training time: 50.7
+prediction loss: 0.2410036524027586
+prediction acc: 0.9243
+
+---------- xavier_normal ----------
+training time: 50.09
+prediction loss: 0.22017258661985398
+prediction acc: 0.9244
+
+---------- xavier_uniform ----------
+training time: 50.96
+prediction loss: 0.21316648482978343
+prediction acc: 0.9302
+```
+
+## Scenario 8c - Choosing the number of nodes and layers
 
 
 
+The first configuration (underfitting model):
+```
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #
+=================================================================
+conv2d (Conv2D)              (None, 26, 26, 32)        320
+_________________________________________________________________
+max_pooling2d (MaxPooling2D) (None, 13, 13, 32)        0
+_________________________________________________________________
+conv2d_1 (Conv2D)            (None, 11, 11, 32)        9248
+_________________________________________________________________
+max_pooling2d_1 (MaxPooling2 (None, 5, 5, 32)          0
+_________________________________________________________________
+dropout (Dropout)            (None, 5, 5, 32)          0
+_________________________________________________________________
+flatten (Flatten)            (None, 800)               0
+_________________________________________________________________
+dense (Dense)                (None, 10)                8010
+_________________________________________________________________
+softmax (Softmax)            (None, 10)                0
+=================================================================
+Total params: 17,578
+Trainable params: 17,578
+Non-trainable params: 0
+_________________________________________________________________
+```
 
+The second configuration (ideal model):
+```
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #
+=================================================================
+conv2d_2 (Conv2D)            (None, 27, 27, 32)        160
+_________________________________________________________________
+conv2d_3 (Conv2D)            (None, 26, 26, 64)        8256
+_________________________________________________________________
+max_pooling2d_2 (MaxPooling2 (None, 13, 13, 64)        0
+_________________________________________________________________
+conv2d_4 (Conv2D)            (None, 12, 12, 128)       32896
+_________________________________________________________________
+max_pooling2d_3 (MaxPooling2 (None, 6, 6, 128)         0
+_________________________________________________________________
+dropout_1 (Dropout)          (None, 6, 6, 128)         0
+_________________________________________________________________
+flatten_1 (Flatten)          (None, 4608)              0
+_________________________________________________________________
+dense_1 (Dense)              (None, 10)                46090
+_________________________________________________________________
+softmax_1 (Softmax)          (None, 10)                0
+=================================================================
+Total params: 87,402
+Trainable params: 87,402
+Non-trainable params: 0
+_________________________________________________________________
+```
 
+The third configuration (overfitting model):
+```
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #
+=================================================================
+conv2d_5 (Conv2D)            (None, 27, 27, 32)        160
+_________________________________________________________________
+conv2d_6 (Conv2D)            (None, 26, 26, 64)        8256
+_________________________________________________________________
+max_pooling2d_4 (MaxPooling2 (None, 13, 13, 64)        0
+_________________________________________________________________
+conv2d_7 (Conv2D)            (None, 12, 12, 128)       32896
+_________________________________________________________________
+conv2d_8 (Conv2D)            (None, 11, 11, 256)       131328
+_________________________________________________________________
+max_pooling2d_5 (MaxPooling2 (None, 5, 5, 256)         0
+_________________________________________________________________
+conv2d_9 (Conv2D)            (None, 4, 4, 512)         524800
+_________________________________________________________________
+max_pooling2d_6 (MaxPooling2 (None, 2, 2, 512)         0
+_________________________________________________________________
+dropout_2 (Dropout)          (None, 2, 2, 512)         0
+_________________________________________________________________
+flatten_2 (Flatten)          (None, 2048)              0
+_________________________________________________________________
+dense_2 (Dense)              (None, 10)                20490
+_________________________________________________________________
+softmax_2 (Softmax)          (None, 10)                0
+=================================================================
+Total params: 717,930
+Trainable params: 717,930
+Non-trainable params: 0
+_________________________________________________________________
+```
 
+Below is the result of our implementation:
+![Result No 8c](img/result-no8c.jpeg?raw=true "result-no8c")
 
+And below is the result of the predicition test
+```
+---------- 17,578 params ----------
+training time: 27.54
+prediction loss: 0.2739635009288788
+prediction acc: 0.9009
+
+---------- 87,402 params ----------
+training time: 47.43
+prediction loss: 0.22836468553245068
+prediction acc: 0.9219
+
+---------- 717,930 params ----------
+training time: 78.43
+prediction loss: 0.3130791326530278
+prediction acc: 0.9196
+```
+
+## Scenario 8d - Choosing the optimizer
+
+Below is the result of our implementation:
+![Result No 8d](img/result-no8d.jpeg?raw=true "result-no8d")
+
+And below is the result of the predicition test
+```
+---------- adam ----------
+training time: 51.49
+prediction loss: 0.22701162923276424
+prediction acc: 0.9235
+
+---------- adagrad ----------
+training time: 48.55
+prediction loss: 0.228485681951046
+prediction acc: 0.9194
+
+---------- rmsprop ----------
+training time: 49.6
+prediction loss: 0.23045796354711057
+prediction acc: 0.9219
+
+---------- adadelta ----------
+training time: 51.57
+prediction loss: 0.22598704968690872
+prediction acc: 0.9227
+```
+
+## Scenario 8e - Choosing the activation
+
+Below is the result of our implementation:
+![Result No 8e](img/result-no8e.jpeg?raw=true "result-no8e")
+
+And below is the result of the predicition test
+```
+---------- relu ----------
+training time: 52.57
+prediction loss: 0.21136212078034877
+prediction acc: 0.9299
+
+---------- selu ----------
+training time: 87.22
+prediction loss: 0.27458372920155527
+prediction acc: 0.9109
+
+---------- prelu ----------
+training time: 84.58
+prediction loss: 0.2126349125891924
+prediction acc: 0.9259
+
+---------- leakyrelu ----------
+training time: 79.83
+prediction loss: 0.23446455146670342
+prediction acc: 0.9191
+```
+
+## Scenario 8f - Choosing the regularizer
+
+In this scenario we try to use three different regularizers: Dropout, L1, and L2. The purpose of the regularizer is to overcome the overfitting that most likely to happen when you train without any regularizer. Dropout have the rate parameter that will control how many nodes that active during the training process. Thus, it can slow down the training and reduce the chance of overfitting. The bigger number of rate means that the more nodes will be set inactive during the training.
+
+L1 and L2 regularizations have a λ parameter which is directly proportional to the penalty: the larger λ the stronger penalty to find complex models and it will be more likely that the model will avoid them. Likewise, if λ is zero, regularization is deactivated. During our implementation, the λ for L1 need to be assigned very small (compared to L2) in order to produce a good result. Thus, L1 is not suitable for this scenario. Below is our configuration for the Dropout, L1, and L2 regularizer.
+
+```
+tf.keras.layers.Dropout(rate = 0.3)
+tf.keras.regularizers.l1(l=0.0001)
+tf.keras.regularizers.l2(l=0.001)
+```
+
+Below is the result of our implementation:
+![Result No 8f](img/result-no8f.jpeg?raw=true "result-no8f")
+
+And below is the result of the predicition test
+```
+---------- none ----------
+training time: 49.68
+prediction loss: 0.41594458510363475
+prediction acc: 0.9141
+
+---------- dropout ----------
+training time: 54.97
+prediction loss: 0.2601199430510402
+prediction acc: 0.9268
+
+---------- l1 ----------
+training time: 50.5
+prediction loss: 0.5417756761074066
+prediction acc: 0.8208
+
+---------- l2 ----------
+training time: 49.78
+prediction loss: 0.2600191069841385
+prediction acc: 0.9179
+```
+
+Based on the training result
+
+Based on the prediction result, we can see that the 
 
 ## Built With
 
