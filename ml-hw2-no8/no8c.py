@@ -9,7 +9,7 @@ def build_ideal_model():
     model.add(tf.keras.layers.Conv2D(filters = 32,
             kernel_size = (2, 2),
             strides = (1, 1),
-            kernel_initializer = tf.contrib.layers.xavier_initializer(uniform = False),
+            kernel_initializer = 'he_normal',
             activation = 'relu',
             input_shape = (28, 28, 1)))
     model.add(tf.keras.layers.Conv2D(filters = 64,
@@ -38,7 +38,7 @@ def build_underfitting_model():
     model.add(tf.keras.layers.Conv2D(filters = 32,
             kernel_size = (3, 3),
             strides = (1, 1),
-            kernel_initializer = tf.contrib.layers.xavier_initializer(uniform = False),
+            kernel_initializer = 'he_normal',
             activation = 'relu',
             input_shape = (28, 28, 1)))
     model.add(tf.keras.layers.MaxPooling2D(pool_size = (2, 2)))
@@ -65,7 +65,7 @@ def build_overfitting_model():
     model.add(tf.keras.layers.Conv2D(filters = 32,
             kernel_size = (2, 2),
             strides = (1, 1),
-            kernel_initializer = tf.contrib.layers.xavier_initializer(uniform = False),
+            kernel_initializer = 'he_normal',
             activation = 'relu',
             input_shape = (28, 28, 1)))
     model.add(tf.keras.layers.Conv2D(filters = 64,

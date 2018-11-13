@@ -9,7 +9,7 @@ def build_model(optimizer):
     model.add(tf.keras.layers.Conv2D(filters = 32,
             kernel_size = (2, 2),
             strides = (1, 1),
-            kernel_initializer = tf.contrib.layers.xavier_initializer(uniform = False),
+            kernel_initializer = 'he_normal',
             activation = 'relu',
             input_shape = (28, 28, 1)))
     model.add(tf.keras.layers.Conv2D(filters = 64,

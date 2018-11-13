@@ -9,7 +9,7 @@ def build_model(activation):
     model.add(tf.keras.layers.Conv2D(filters = 32,
             kernel_size = (2, 2),
             strides = (1, 1),
-            kernel_initializer = tf.contrib.layers.xavier_initializer(uniform = False),
+            kernel_initializer = 'he_normal',
             activation = activation,
             input_shape = (28, 28, 1)))
     model.add(tf.keras.layers.Conv2D(filters = 64,
@@ -42,7 +42,7 @@ def build_prelu_model():
     model.add(tf.keras.layers.Conv2D(filters = 32,
             kernel_size = (2, 2),
             strides = (1, 1),
-            kernel_initializer = tf.contrib.layers.xavier_initializer(uniform = False),
+            kernel_initializer = 'he_normal',
             activation = tf.keras.layers.PReLU(shared_axes=[1, 2]),
             input_shape = (28, 28, 1)))
     model.add(tf.keras.layers.Conv2D(filters = 64,
