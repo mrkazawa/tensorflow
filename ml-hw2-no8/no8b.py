@@ -2,33 +2,40 @@ import tensorflow as tf
 import utils
 
 # Popular CNN layer model is
-# Conv -> ReLU -> Conv -> ReLU -> Pool -> Conv -> ReLU -> Pool -> (Dropout) --> Fully Connected
+# Conv -> ReLU -> Conv -> ReLU -> Pool -> (Dropout) -> Conv -> ReLU -> Pool -> (Dropout) --> Fully Connected
+
+
 def build_model(kernel_initializer):
     model = tf.keras.Sequential()
 
-    model.add(tf.keras.layers.Conv2D(filters = 32,
-            kernel_size = (2, 2),
-            strides = (1, 1),
-            kernel_initializer = kernel_initializer,
-            activation = 'relu',
-            input_shape = (28, 28, 1)))
-    model.add(tf.keras.layers.Conv2D(filters = 64,
-            kernel_size = (2, 2),  activation = 'relu'))
-    model.add(tf.keras.layers.MaxPooling2D(pool_size = (2, 2)))
+    model.add(tf.keras.layers.Conv2D(filters=32,
+                                     kernel_size=(2, 2),
+                                     kernel_initializer=kernel_initializer,
+                                     activation='relu',
+                                     input_shape=(28, 28, 1)))
+    model.add(tf.keras.layers.Conv2D(filters=64,
+                                     kernel_size=(2, 2),
+                                     kernel_initializer=kernel_initializer,
+                                     activation='relu'))
+    model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2)))
+    model.add(tf.keras.layers.Dropout(rate=0.3))
 
-    model.add(tf.keras.layers.Conv2D(filters = 128,
-            kernel_size = (2, 2),  activation = 'relu'))
-    model.add(tf.keras.layers.MaxPooling2D(pool_size = (2, 2)))
-    model.add(tf.keras.layers.Dropout(0.3))
-    
+    model.add(tf.keras.layers.Conv2D(filters=128,
+                                     kernel_size=(2, 2),
+                                     kernel_initializer=kernel_initializer,
+                                     activation='relu'))
+    model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2)))
+    model.add(tf.keras.layers.Dropout(rate=0.3))
+
     model.add(tf.keras.layers.Flatten())
-    model.add(tf.keras.layers.Dense(units = 10))
-    model.add(tf.keras.layers.Softmax())
+    model.add(tf.keras.layers.Dense(units=10,
+                                    kernel_initializer=kernel_initializer,
+                                    activation='softmax'))
 
     model.compile(loss='categorical_crossentropy',
-            optimizer='adam',
-            metrics=['accuracy'])
-    
+                  optimizer='adam',
+                  metrics=['accuracy'])
+
     model.summary()
     return model
 
@@ -43,22 +50,32 @@ training_time_list = list()
 training_title_list = list()
 prediction_result_list = list()
 
-n_epoch = 15
+n_epoch = 25
 batch_size = 128
+
+checkpointer = tf.keras.callbacks.ModelCheckpoint(
+    filepath='./model/model-no8b.h5',
+    verbose=1,
+    save_best_only=True)
+
 
 def run_scenario(kernel_initializer):
     runner.print_separator(kernel_initializer)
     model = None
 
     if (kernel_initializer == 'he_normal'):
-        model = build_model(kernel_initializer = tf.keras.initializers.he_normal())
+        model = build_model(
+            kernel_initializer=tf.keras.initializers.he_normal())
     elif (kernel_initializer == 'he_uniform'):
-        model = build_model(kernel_initializer = tf.keras.initializers.he_uniform())
+        model = build_model(
+            kernel_initializer=tf.keras.initializers.he_uniform())
     elif (kernel_initializer == 'xavier_normal'):
-        model = build_model(kernel_initializer = tf.contrib.layers.xavier_initializer(uniform = False))
+        model = build_model(
+            kernel_initializer=tf.contrib.layers.xavier_initializer(uniform=False))
     elif (kernel_initializer == 'xavier_uniform'):
-        model = build_model(kernel_initializer = tf.contrib.layers.xavier_initializer(uniform = True))
-    
+        model = build_model(
+            kernel_initializer=tf.contrib.layers.xavier_initializer(uniform=True))
+
     t_result, t_time = runner.start_training(model, n_epoch, batch_size)
     p_result = runner.start_prediction(model)
 
@@ -67,10 +84,12 @@ def run_scenario(kernel_initializer):
     training_title_list.append(kernel_initializer)
     prediction_result_list.append(p_result)
 
-run_scenario('he_normal')
-run_scenario('he_uniform')
-run_scenario('xavier_normal')
-run_scenario('xavier_uniform')
 
-runner.print_result(training_title_list, training_time_list, prediction_result_list)
+run_scenario('he_normal')
+#run_scenario('he_uniform')
+run_scenario('xavier_normal')
+#run_scenario('xavier_uniform')
+
+runner.print_result(training_title_list, training_time_list,
+                    prediction_result_list)
 runner.plot_accuracy_and_loss(training_title_list, training_result_list)

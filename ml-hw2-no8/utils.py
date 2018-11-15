@@ -3,9 +3,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 
+
 class Runner:
     def load_fashion_mnist_data(self):
-        (self.x_train, self.y_train), (self.x_test, self.y_test) = tf.keras.datasets.fashion_mnist.load_data()
+        (self.x_train, self.y_train), (self.x_test,
+                                       self.y_test) = tf.keras.datasets.fashion_mnist.load_data()
 
     def centering_the_image(self, x_train, x_test):
         """ Perform centering by mean subtraction and dividing with 
@@ -81,11 +83,16 @@ class Runner:
         return x_train, y_train, x_valid, y_valid
 
     def normalize_data(self):
-        self.x_train, self.x_test = self.make_image_has_the_same_scale(self.x_train, self.x_test)
-        self.x_train, self.x_test = self.centering_the_image(self.x_train, self.x_test)
-        self.x_train, self.x_test = self.reshaping_image(self.x_train, self.x_test)
-        self.y_train, self.y_test = self.perform_one_hot_encoding(self.y_train, self.y_test)
-        self.x_train, self.y_train, self.x_valid, self.y_valid = self.split_validation_data_from_train_data(self.x_train, self.y_train)
+        self.x_train, self.x_test = self.make_image_has_the_same_scale(
+            self.x_train, self.x_test)
+        self.x_train, self.x_test = self.centering_the_image(
+            self.x_train, self.x_test)
+        self.x_train, self.x_test = self.reshaping_image(
+            self.x_train, self.x_test)
+        self.y_train, self.y_test = self.perform_one_hot_encoding(
+            self.y_train, self.y_test)
+        self.x_train, self.y_train, self.x_valid, self.y_valid = self.split_validation_data_from_train_data(
+            self.x_train, self.y_train)
 
     def start_training(self, model, n_epoch, batch_size):
         """ Start the training for the given model
@@ -105,10 +112,10 @@ class Runner:
         """
         start_time = time.time()
         train_model = model.fit(self.x_train, self.y_train,
-                  batch_size = batch_size,
-                  epochs = n_epoch,
-                  verbose = 0,
-                  validation_data = (self.x_valid, self.y_valid))
+                                batch_size=batch_size,
+                                epochs=n_epoch,
+                                verbose=0,
+                                validation_data=(self.x_valid, self.y_valid))
         train_time = round(time.time() - start_time, 2)
         return train_model, train_time
 
@@ -121,32 +128,39 @@ class Runner:
         model: the Keras training model to be tested
 
         Returns:
-        score: the accuracy and loss score of prediction
+        score:  The accuracy score of prediction.
+                Score is in array, score[0] will be the prediction loss.
+                Meanwhile, the score[1] will be the prediction accuracy.
         """
-        score = model.evaluate(self.x_test, self.y_test, verbose = 0)
-        return score
+        score = model.evaluate(self.x_test, self.y_test, verbose=0)
+        return score[1]
 
     def print_separator(self, title):
-        print('\n---------- %s ----------'  % (title))
+        print('\n---------- %s ----------' % (title))
 
     def print_data_normalization_result(self):
         print("Fashion MNIST Normalization Result:")
-        print("Training set (images) shape: {shape}".format(shape=self.x_train.shape))
-        print("Training set (labels) shape: {shape}".format(shape=self.y_train.shape))
-        print("Validation set (images) shape: {shape}".format(shape=self.x_valid.shape))
-        print("Validation set (labels) shape: {shape}".format(shape=self.y_valid.shape))
-        print("Test set (images) shape: {shape}".format(shape=self.x_test.shape))
-        print("Test set (labels) shape: {shape}".format(shape=self.y_test.shape))
+        print("Training set (images) shape: {shape}".format(
+            shape=self.x_train.shape))
+        print("Training set (labels) shape: {shape}".format(
+            shape=self.y_train.shape))
+        print("Validation set (images) shape: {shape}".format(
+            shape=self.x_valid.shape))
+        print("Validation set (labels) shape: {shape}".format(
+            shape=self.y_valid.shape))
+        print("Test set (images) shape: {shape}".format(
+            shape=self.x_test.shape))
+        print("Test set (labels) shape: {shape}".format(
+            shape=self.y_test.shape))
 
     def print_result(self, t_title_list, t_time_list, p_result_list):
         for i in range(len(t_title_list)):
             self.print_separator(t_title_list[i])
             print('training time: %s' % (t_time_list[i]))
-            print('prediction loss: %s' % (p_result_list[i][0]))
-            print('prediction acc: %s' % (p_result_list[i][1]))
+            print('prediction acc: %s' % (p_result_list[i]))
 
     def plot_accuracy_and_loss(self, t_title_list, t_result_list):
-        f, ax = plt.subplots(2, 2, figsize = (14, 6))
+        f, ax = plt.subplots(2, 2, figsize=(14, 6))
         f.canvas.set_window_title('Result')
         colors = ['b', 'g', 'r', 'm', 'c', 'y']
 
@@ -163,10 +177,10 @@ class Runner:
             val_loss = hist['val_loss']
             epochs = range(len(acc))
 
-            ax[0, 0].plot(epochs, acc, colors[i], label = t_title_list[i])
-            ax[0, 1].plot(epochs, val_acc, colors[i], label = t_title_list[i])
-            ax[1, 0].plot(epochs, loss, colors[i], label = t_title_list[i])
-            ax[1, 1].plot(epochs, val_loss, colors[i], label = t_title_list[i])
+            ax[0, 0].plot(epochs, acc, colors[i], label=t_title_list[i])
+            ax[0, 1].plot(epochs, val_acc, colors[i], label=t_title_list[i])
+            ax[1, 0].plot(epochs, loss, colors[i], label=t_title_list[i])
+            ax[1, 1].plot(epochs, val_loss, colors[i], label=t_title_list[i])
 
         ax[0, 0].legend()
         ax[0, 1].legend()
@@ -174,3 +188,4 @@ class Runner:
         ax[1, 1].legend()
 
         plt.show()
+    
