@@ -91,8 +91,8 @@ discriminator.call = tf.contrib.eager.defun(discriminator.call)
 
 
 def discriminator_loss(real_output, generated_output):
-        # [1,1,...,1] with real output since it is true and we want
-        # our generated examples to look like it
+    # [1,1,...,1] with real output since it is true and we want
+    # our generated examples to look like it
     real_loss = tf.losses.sigmoid_cross_entropy(
         multi_class_labels=tf.ones_like(real_output), logits=real_output)
 
@@ -119,7 +119,7 @@ checkpoint = tf.train.Checkpoint(generator_optimizer=generator_optimizer,
                                  generator=generator,
                                  discriminator=discriminator)
 
-EPOCHS = 150
+EPOCHS = 40
 noise_dim = 100
 num_examples_to_generate = 16
 
@@ -133,16 +133,22 @@ def generate_and_save_images(model, epoch, test_input):
     # make sure the training parameter is set to False because we
     # don't want to train the batchnorm layer when doing inference.
     predictions = model(test_input, training=False)
+    print(vars(predictions))
+    print(predictions.shape[0])
 
     fig = plt.figure(figsize=(4, 4))
 
     for i in range(predictions.shape[0]):
         plt.subplot(4, 4, i+1)
+        # the generated image from predictions will be between -1 to 1
+        # because of the previous normalization. Thus we need to change
+        # them back to the grayscale bit between 0 to 255
+        # reverse process from the centering_image() method
         plt.imshow(predictions[i, :, :, 0] * 127.5 + 127.5, cmap='gray')
         plt.axis('off')
 
     plt.savefig('./results/image_at_epoch_{:04d}.png'.format(epoch))
-    #plt.show()
+    # plt.show()
 
 
 def train(dataset, epochs, noise_dim):
@@ -192,10 +198,12 @@ def train(dataset, epochs, noise_dim):
                              random_vector_for_generation)
 
 
-train(train_dataset, EPOCHS, noise_dim)
-
 # restoring the latest checkpoint in checkpoint_dir
 checkpoint.restore(tf.train.latest_checkpoint(checkpoint_dir))
+
+train(train_dataset, EPOCHS, noise_dim)
+
+
 
 """
 def display_image(epoch_no):
@@ -219,4 +227,4 @@ with imageio.get_writer('./results/dcgan.gif', mode='I') as writer:
 
 # below code is a hack to display the gif inside the notebook, please uncomment when needed
 #os.system('cp dcgan.gif dcgan.gif.png')
-#display.Image(filename="dcgan.gif.png")
+# display.Image(filename="dcgan.gif.png")
