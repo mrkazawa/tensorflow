@@ -70,7 +70,7 @@ In this section we are going to run and analyze our DCGAN code towards the FASHI
 
 What we mean by initial generator and discriminator model is the models that are implemented in the earlier code. We do not modify the structure of the models in this scenario. Based on that code, the **generator model** layer and configuration looks something like this:
 
-* Dense (7*7*64 units) -> BatchNorm -> ReLU
+* Dense (7 x 7 x 64 units) -> BatchNorm -> ReLU
 * Conv2DTranspose (64 features) -> BatchNorm -> ReLU
 * Conv2DTranspose (32 features) -> BatchNorm -> ReLU
 * Conv2DTranspose (1 feature) --> tanh
@@ -177,7 +177,7 @@ We can see from the figure that at the early stage (`epoch 1-50`), the discrimin
 
 In this scenario, we try to perform the opposite test from the Scenario 2, we want modify the generator model so that it is really weak and can only produce small number of trainable parameters. This should make the generator **really bad** at generating fake images. We want to see whether using this combination, the model can still generate good enough fake images. The **weak generator model** layer and configuration for this scenario looks something like this:
 
-* Dense (7*7*16 units) -> BatchNorm -> ReLU
+* Dense (7 x 7 x 16 units) -> BatchNorm -> ReLU
 * Conv2DTranspose (8 features) -> BatchNorm -> ReLU
 * Conv2DTranspose (1 feature) --> tanh
 
