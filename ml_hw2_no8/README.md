@@ -20,7 +20,7 @@ pip install tensorflow=1.11.0
 
 You can start running the program **(WITHOUT THE NEED OF RE-TRAINING)** by evaluating the previously saved trained model using this following command. This command will also plot the history of the previous training result.
 
-```
+```shell
 cd YOUR_DIR
 # You need to specify one argument, which is the scenario that you want to run
 # 8b, 8c, 8d, 8e, or 8f
@@ -35,7 +35,7 @@ python evaluate.py 8f
 
 If you want to retrain the model, you can run this following command.
 
-```
+```shell
 cd YOUR_DIR
 python train_8b.py
 python train_8c.py
