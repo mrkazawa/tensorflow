@@ -2,6 +2,7 @@ from IPython import display
 import tensorflow as tf
 import os
 import matplotlib.pyplot as plt
+import numpy as np
 import time
 import imageio
 import glob
@@ -75,6 +76,15 @@ class Discriminator(tf.keras.Model):
         return x
 
 
+def remove_all_files_inside_folder(folder_dir):
+    for the_file in os.listdir(folder_dir):
+        file_path = os.path.join(folder_dir, the_file)
+        try:
+            if os.path.isfile(file_path):
+                os.unlink(file_path)
+        except Exception as e:
+            print(e)
+
 def get_fmnist_data():
     return tf.keras.datasets.fashion_mnist.load_data()
 
@@ -138,17 +148,19 @@ def generate_and_save_images(model, epoch, test_input):
 
     plt.savefig(PATH_TO_RESULT_DIR+IMAGE_FILE_NAME_TEMPLATE.format(epoch))
     # plt.show()
+    plt.close()
 
-g_loss = list()
-d_loss = list()
-history = {
-    "g_loss": None,
-    "d_loss": None
-}
+#g_loss = list()
+#d_loss = list()
+history = {}
+history['g_losses'] = []
+history['d_losses'] = []
 
 def train(dataset, epochs, noise_dim, generator, discriminator, checkpoint, random_vector):
     for epoch in range(epochs):
         start = time.time()
+        g_losses = list()
+        d_losses = list()
 
         for images in dataset:
             # generating noise from a uniform distribution
@@ -163,6 +175,9 @@ def train(dataset, epochs, noise_dim, generator, discriminator, checkpoint, rand
                 gen_loss = calculate_generator_loss(generated_output)
                 disc_loss = calculate_discriminator_loss(real_output, generated_output)
 
+            g_losses.append(gen_loss.numpy())
+            d_losses.append(disc_loss.numpy())
+
             gradients_of_generator = gen_tape.gradient(
                 gen_loss, generator.variables)
             gradients_of_discriminator = disc_tape.gradient(
@@ -174,9 +189,12 @@ def train(dataset, epochs, noise_dim, generator, discriminator, checkpoint, rand
                 zip(gradients_of_discriminator, discriminator.variables))
 
         #print('generator loss: %s' % (gen_loss.numpy()))
-        g_loss.append(gen_loss.numpy())
+        #g_loss.append(gen_loss.numpy())
         #print('discriminator loss: %s' % (disc_loss.numpy()))
-        d_loss.append(disc_loss.numpy())
+        #d_loss.append(disc_loss.numpy())
+
+        history["g_losses"].append(np.mean(g_losses))
+        history["d_losses"].append(np.mean(d_losses))
 
         if epoch % 1 == 0:
             display.clear_output(wait=True)
@@ -192,8 +210,8 @@ def train(dataset, epochs, noise_dim, generator, discriminator, checkpoint, rand
     display.clear_output(wait=True)
     generate_and_save_images(generator, epochs, random_vector)
 
-    history["g_loss"] = g_loss
-    history["d_loss"] = d_loss
+    #history["g_loss"] = g_loss
+    #history["d_loss"] = d_loss
     plot_loss(history)
 
 def create_gif():
@@ -219,8 +237,8 @@ def plot_loss(history):
     ax.set_title('Training Loss')
     ax.set_xlabel('epoch')
 
-    g_loss = history['g_loss']
-    d_loss = history['d_loss']
+    g_loss = history['g_losses']
+    d_loss = history['d_losses']
     epochs = range(len(g_loss))
 
     ax.plot(epochs, g_loss, 'r', label='generator_loss')

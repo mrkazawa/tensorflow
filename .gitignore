@@ -117,5 +117,5 @@ dmypy.json
 .vscode
 examples/results/*
 examples/training_checkpoints/*
-ml-hw2-no9/results/*
-ml-hw2-no9/training_checkpoints/*
+ml_hw2_no9/results/*
+ml_hw2_no9/training_checkpoints/*
