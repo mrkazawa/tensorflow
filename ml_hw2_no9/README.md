@@ -4,7 +4,7 @@
 [![code](https://img.shields.io/badge/code-python3.5-yellowgreen.svg)]()
 [![dependency](https://img.shields.io/badge/dependency-tensorflow-orange.svg)]()
 
-This repository contains our code to answer the Machine Learning class Homework 2 No 9. We will perform a **DCGAN (Deep Convolutional Generative Adversarial Network)** to generate fake image data by training them against [Fashion-MNIST](https://github.com/zalandoresearch/fashion-mnist) dataset
+This repository contains our code to answer the Machine Learning class Homework 2 No 9. We will perform a **DCGAN (Deep Convolutional Generative Adversarial Network)** to generate fake image data by training them against [Fashion-MNIST](https://github.com/zalandoresearch/fashion-mnist) dataset. Our code is a modification based on the code available from the [Tensorflow Tutorial](https://github.com/tensorflow/tensorflow/blob/r1.11/tensorflow/contrib/eager/python/examples/generative_examples/dcgan.ipynb) site.
 
 ## Prerequisites
 
@@ -15,38 +15,16 @@ pip install tensorflow=1.11.0
 pip install imageio
 ```
 
-## How to run
+## How to run / train
 
-### Evaluating
+You can start running the program with the training. It will take some time depending on your machine. *(took me around 1 hour with 1080Ti card)*
 
-You can start running the program **(WITHOUT THE NEED OF RE-TRAINING)** by evaluating the previously saved trained model using this following command. This command will also plot the history of the previous training result.
-
-```
+```shell
 cd YOUR_DIR
-# You need to specify one argument, which is the scenario that you want to run
-# 8b, 8c, 8d, 8e, or 8f
-python evaluate.py 8b
-python evaluate.py 8c
-python evaluate.py 8d
-python evaluate.py 8e
-python evaluate.py 8f
+python normal.py # to run scenario 1
+python weak_g.py # to run scenario 2
+python weak_d.py # to run scenario 3
 ```
-
-### Training
-
-If you want to retrain the model, you can run this following command.
-
-```
-cd YOUR_DIR
-python train_8b.py
-python train_8c.py
-python train_8d.py
-python train_8e.py
-python train_8f.py
-```
-
-
-
 
 ## Data Normalization
 
@@ -80,18 +58,22 @@ def create_custom_dataset(data):
     return tf.data.Dataset.from_tensor_slices(data).shuffle(BUFFER_SIZE).batch(BATCH_SIZE)
 ```
 
-## Scenario 1 - Using initial generator and discriminator model
+## The DCGAN Implementation
 
-What we mean by initial generator and discriminator model is 
+In this section we are going to run and analyze our DCGAN code towards the FASHION MNIST dataset. To be able to investigate the behaviour of the generator and the discriminator model during the training, we do some modification to the code to plot the history of the loss during the training. Also, we divide our test into several scenarios:
 
+* Using initial generator and discriminator model
+* Using weaker generator model
+* Using weaker discriminator model
 
-The generator model configuration is like this
+### 1 - Using initial generator and discriminator model
 
-Layer Architecture:
-* Dense -> BatchNorm -> ReLU
-* Conv2DTranspose -> BatchNorm -> ReLU
-* Conv2DTranspose -> BatchNorm -> ReLU
-* Conv2DTranspose --> tanh
+What we mean by initial generator and discriminator model is the models that are implemented in the earlier code. We do not modify the structure of the models in this scenario. Based on that code, the **generator model** layer and configuration looks something like this:
+
+* Dense (7*7*64 units) -> BatchNorm -> ReLU
+* Conv2DTranspose (64 features) -> BatchNorm -> ReLU
+* Conv2DTranspose (32 features) -> BatchNorm -> ReLU
+* Conv2DTranspose (1 feature) --> tanh
 
 Output from Tensorflow `model.summary()`
 ```
@@ -118,7 +100,17 @@ Non-trainable params: 6,464
 _________________________________________________________________
 ```
 
-The discriminator model configuration is like this
+Meanwhile, the **discriminator model** layer and configuration are something like this:
+
+* Conv2D (64 features) -> LeakyReLU
+* Dropout
+* Conv2D (128 features) -> LeakyReLU
+* Dropout
+* Flatten
+* Dense
+
+Output from Tensorflow `model.summary()`
+
 ```
 _________________________________________________________________
 Layer (type)                 Output Shape              Param #
@@ -139,81 +131,22 @@ Non-trainable params: 0
 _________________________________________________________________
 ```
 
-## Scenario 2 - Using weaker generator model
+We run this scenario in 300 epochs **(it took around 1 hour with 1080Ti card)**. Below is the chart of the generator and discriminator loss during the training.
+![Normal Loss](img/normal_loss.png?raw=true "normal_loss")
+We can see from the figure that at the early stage (`epoch 1-50`), the generator loss is high because the generator still learning to generate images and the discriminator loss is low because it can easily differentiate between the fake and real images. However both lossess are starting to twisted around `epoch 75`. At this time, the discriminator loss is higher than the generator loss. As the generator started to be good at producing image, the loss will be getting better while the discriminator loss will be worse bacause it is now more difficult to differentiate between the fake and real images. Based on our experiment, both model start to converge around `epoch 125`.
 
-The weak generator model configuration is like this
-```
-_________________________________________________________________
-Layer (type)                 Output Shape              Param #
-=================================================================
-dense_1 (Dense)              multiple                  313600
-_________________________________________________________________
-batch_normalization (BatchNo multiple                  12544
-_________________________________________________________________
-conv2d_transpose (Conv2DTran multiple                  12800
-_________________________________________________________________
-batch_normalization_1 (Batch multiple                  32
-_________________________________________________________________
-conv2d_transpose_1 (Conv2DTr multiple                  200
-_________________________________________________________________
-dropout_1 (Dropout)          multiple                  0
-=================================================================
-Total params: 339,176
-Trainable params: 332,888
-Non-trainable params: 6,288
-_________________________________________________________________
-```
+### 2 - Using weaker discriminator model
 
-The discriminator model is like this
-```
-_________________________________________________________________
-Layer (type)                 Output Shape              Param #
-=================================================================
-conv2d (Conv2D)              multiple                  1664
-_________________________________________________________________
-conv2d_1 (Conv2D)            multiple                  204928
-_________________________________________________________________
-dropout (Dropout)            multiple                  0
-_________________________________________________________________
-flatten (Flatten)            multiple                  0
-_________________________________________________________________
-dense (Dense)                multiple                  6273
-=================================================================
-Total params: 212,865
-Trainable params: 212,865
-Non-trainable params: 0
-_________________________________________________________________
+In this scenario, we try to modify the discriminator model so that it is really weak and can only produce small number of trainable parameters. This should make the discriminator **really bad** at differentiating between fake and real images. We want to see if this model can still generate good enough fake images. The **weak discriminator model** layer and configuration for this scenario looks something like this:
 
-```
+* Conv2D (16 features) -> LeakyReLU
+* Dropout
+* Conv2D (32 features) -> LeakyReLU
+* Dropout
+* Flatten
+* Dense
 
-## Scenario 3 - Using weaker discriminator model
-
-The generator model configuration is like this
-```
-_________________________________________________________________
-Layer (type)                 Output Shape              Param #
-=================================================================
-dense (Dense)                multiple                  313600
-_________________________________________________________________
-batch_normalization (BatchNo multiple                  12544
-_________________________________________________________________
-conv2d_transpose (Conv2DTran multiple                  102400
-_________________________________________________________________
-batch_normalization_1 (Batch multiple                  256
-_________________________________________________________________
-conv2d_transpose_1 (Conv2DTr multiple                  51200
-_________________________________________________________________
-batch_normalization_2 (Batch multiple                  128
-_________________________________________________________________
-conv2d_transpose_2 (Conv2DTr multiple                  800
-=================================================================
-Total params: 480,928
-Trainable params: 474,464
-Non-trainable params: 6,464
-_________________________________________________________________
-```
-
-The weak discriminator model configuration is like this
+Output from Tensorflow `model.summary()`
 ```
 _________________________________________________________________
 Layer (type)                 Output Shape              Param #
@@ -235,6 +168,44 @@ Trainable params: 14,817
 Non-trainable params: 0
 _________________________________________________________________
 ```
+
+We use the same **generatore model** as in Scenario 1. Then, we run this scenario in 300 epochs **(it took around 1 hour with 1080Ti card)**. Below is the chart of the generator and discriminator loss during the training.
+![Weak D Loss](img/weak_disc_loss.png?raw=true "weak_d_loss")
+We can see from the figure that at the early stage (`epoch 1-50`), the discriminator loss is already high due to weak classification ability. This weak discriminator affects the ability of the generator to produce good image. We can see from the figure that at this early stage, the loss distribution of the generator model is not as diverse as the early stage at the Scenario 1. This hinders the growth of the generator model. Lastly, based on our experiment, both model start to converge early (compared to Scenario 1) around `epoch 75`.
+
+### 3 - Using weaker generator model
+
+In this scenario, we try to perform the opposite test from the Scenario 2, we want modify the generator model so that it is really weak and can only produce small number of trainable parameters. This should make the generator **really bad** at generating fake images. We want to see whether using this combination, the model can still generate good enough fake images. The **weak generator model** layer and configuration for this scenario looks something like this:
+
+* Dense (7*7*16 units) -> BatchNorm -> ReLU
+* Conv2DTranspose (8 features) -> BatchNorm -> ReLU
+* Conv2DTranspose (1 feature) --> tanh
+
+Output from Tensorflow `model.summary()`
+```
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #
+=================================================================
+dense_1 (Dense)              multiple                  78400
+_________________________________________________________________
+batch_normalization (BatchNo multiple                  3136
+_________________________________________________________________
+conv2d_transpose (Conv2DTran multiple                  3200
+_________________________________________________________________
+batch_normalization_1 (Batch multiple                  32
+_________________________________________________________________
+conv2d_transpose_1 (Conv2DTr multiple                  200
+_________________________________________________________________
+dropout_1 (Dropout)          multiple                  0
+=================================================================
+Total params: 84,968
+Trainable params: 83,384
+Non-trainable params: 1,584
+_________________________________________________________________
+```
+We use the same **discriminator model** as in Scenario 1. Then, we run this scenario in 300 epochs **(it took around 1 hour with 1080Ti card)**. Below is the chart of the generator and discriminator loss during the training.
+![Weak G Loss](img/weak_gen_loss.png?raw=true "weak_g_loss")
+We can see from the figure that at the early stage (`epoch 1-50`), the generator loss is high because it can only generate bad fake images. Moreover, based on our experiment, this scenario is harder to reach a linear convergence. Even at `epoch 300`, the generator loss still tend to go to a slightly higher value. However, the discriminator loss graph shows that it converge around `epoch 150`.
 
 ## Results Comparison
 
@@ -265,6 +236,15 @@ Normal (Epoch 150) | Weak Discriminator (Epoch 150) | Weak Generator (Epoch 150)
 Normal (Epoch 300) | Weak Discriminator (Epoch 300) | Weak Generator (Epoch 300)
 :---: | :---: | :---:
 ![Normal 300](img/normal_300.png?raw=true "normal_300") | ![Weak D 300](img/weak_disc_300.png?raw=true "weak_d_300") | ![Weak G 300](img/weak_gen_300.png?raw=true "weak_g_300")
+
+## Some Takeaways
+
+After running this experiment, we can take several lessons and takeaways:
+
+* The loss of generator model will affect the loss of discriminator model and vice versa. They are two networks that are trying to optimize a different and opposing loss functions. So, when the loss of generator ascends, the loss of discriminator will descends. Their losses push against each other.
+* The generator and discriminator, however bad they are, will converge at a given time. We have trained our generator and discriminator in several scenarios with one being weaker against the other. They are going to converge eventually.
+* After the training, both of the weaker scenarios (#2 and #3) can still generate observable fake images. The weaker discriminator will have the tendency to generate bright fake images with many white pixels. Meanwhile, the weaker generator will have the opposite tendency by generating darker fake images with many black pixels.
+* GAN is similar to the Neural Network in general. In order to achive the best result, we have to configure the model. Applying the suitable hyperparameters such as choosing the correct number of layers and the right type layers is important. The parameters for each layers are also important factor.
 
 ## Authors
 
