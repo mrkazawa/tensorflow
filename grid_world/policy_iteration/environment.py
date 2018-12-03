@@ -36,6 +36,8 @@ class GraphicDisplay(tk.Tk):
         if self.scenario == 'iii':
             self.text_reward(3, 2, "R : -1.0")
 
+        self.print_value_table(self.agent.value_table)
+
     def _build_canvas(self):
         canvas = tk.Canvas(self, bg='white',
                            height=HEIGHT * UNIT,
@@ -103,9 +105,20 @@ class GraphicDisplay(tk.Tk):
 
             for i in self.arrows:
                 self.canvas.delete(i)
-            self.agent.value_table = [[0.0] * WIDTH for _ in range(HEIGHT)]
-            self.agent.policy_table = ([[[0.25, 0.25, 0.25, 0.25]] * WIDTH
-                                        for _ in range(HEIGHT)])
+
+            if self.scenario == 'ii':
+                self.agent.value_table = self.agent.generate_random_value_table(
+                    WIDTH, HEIGHT)
+            else:
+                self.agent.value_table = [[0.0] * WIDTH for _ in range(HEIGHT)]
+
+            if self.scenario == 'ii':
+                self.agent.policy_table = self.agent.generate_random_policy_table(
+                    WIDTH, HEIGHT)
+            else:
+                self.agent.policy_table = ([[[0.25, 0.25, 0.25, 0.25]] * WIDTH
+                                            for _ in range(HEIGHT)])
+
             self.agent.policy_table[2][2] = []
             # move rectangle to the original position
             x, y = self.canvas.coords(self.rectangle)
@@ -117,12 +130,14 @@ class GraphicDisplay(tk.Tk):
             if self.scenario == 'iii':
                 self.text_reward(3, 2, "R : -1.0")
 
+            self.print_value_table(self.agent.value_table)
+
     def text_value(self, row, col, contents, font='Helvetica', size=10,
                    style='normal', anchor="nw"):
         origin_x, origin_y = 85, 70
         x, y = origin_y + (UNIT * col), origin_x + (UNIT * row)
         font = (font, str(size), style)
-        text = self.canvas.create_text(x, y, fill="black", text=contents,
+        text = self.canvas.create_text(x, y, fill="blue", text=contents,
                                        font=font, anchor=anchor)
         return self.texts.append(text)
 

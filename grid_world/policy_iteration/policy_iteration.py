@@ -9,22 +9,23 @@ class PolicyIteration:
     def __init__(self, env, scenario):
         self.env = env
         # 2-d list for the value function
-        self.value_table = [[0.0] * env.width for _ in range(env.height)]
         if scenario == 'ii':
             self.value_table = self.generate_random_value_table(
                 env.width, env.height)
-        # list of random policy (same probability of up, down, left, right)
-        self.policy_table = [[[0.25, 0.25, 0.25, 0.25]] * env.width
-                             for _ in range(env.height)]
+        else:
+            self.value_table = [[0.0] * env.width for _ in range(env.height)]
+        # list of random policy (up, down, left, right)
         if scenario == 'ii':
             self.policy_table = self.generate_random_policy_table(
                 env.width, env.height)
+        else:
+            self.policy_table = [[[0.25, 0.25, 0.25, 0.25]] * env.width
+                                 for _ in range(env.height)]
         # setting terminal state
         self.policy_table[2][2] = []
         self.discount_factor = 0.9
 
     def generate_random_value_table(self, width, height):
-        random.seed(1)
         value_table = [[round(random.random(), 2)] *
                        width for _ in range(height)]
         return value_table
