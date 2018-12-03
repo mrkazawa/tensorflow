@@ -15,46 +15,48 @@ REWARDS = []
 
 
 class GraphicDisplay(tk.Tk):
-    def __init__(self, agent):
+    def __init__(self, agent, scenario):
         super(GraphicDisplay, self).__init__()
         self.title('Policy Iteration')
+        self.scenario = scenario
         self.geometry('{0}x{1}'.format(HEIGHT * UNIT, HEIGHT * UNIT + 50))
         self.texts = []
         self.arrows = []
-        self.env = Env()
+        self.env = Env(scenario)
         self.agent = agent
         self.evaluation_count = 0
         self.improvement_count = 0
         self.is_moving = 0
         (self.up, self.down, self.left, self.right), self.shapes = self.load_images()
         self.canvas = self._build_canvas()
-        self.text_reward(2, 2, "R : 1.0")
+        self.text_reward(row=2, col=2, contents="R : 1.0")
         self.text_reward(1, 2, "R : -1.0")
         self.text_reward(2, 1, "R : -1.0")
+        if self.scenario == 'iii': self.text_reward(3, 2, "R : -1.0")
 
     def _build_canvas(self):
         canvas = tk.Canvas(self, bg='white',
                            height=HEIGHT * UNIT,
                            width=WIDTH * UNIT)
         # buttons
-        iteration_button = Button(self, text="Evaluate",
+        button = Button(self, text="Evaluate",
                                   command=self.evaluate_policy)
-        iteration_button.configure(width=10, activebackground="#33B5E5")
-        canvas.create_window(WIDTH * UNIT * 0.13, HEIGHT * UNIT + 10,
-                             window=iteration_button)
-        policy_button = Button(self, text="Improve",
+        button.configure(width=10, activebackground="#33B5E5")
+        canvas.create_window(WIDTH * UNIT * 0.13, HEIGHT * UNIT + 16,
+                             window=button)
+        button = Button(self, text="Improve",
                                command=self.improve_policy)
-        policy_button.configure(width=10, activebackground="#33B5E5")
-        canvas.create_window(WIDTH * UNIT * 0.37, HEIGHT * UNIT + 10,
-                             window=policy_button)
-        policy_button = Button(self, text="move", command=self.move_by_policy)
-        policy_button.configure(width=10, activebackground="#33B5E5")
-        canvas.create_window(WIDTH * UNIT * 0.62, HEIGHT * UNIT + 10,
-                             window=policy_button)
-        policy_button = Button(self, text="reset", command=self.reset)
-        policy_button.configure(width=10, activebackground="#33B5E5")
-        canvas.create_window(WIDTH * UNIT * 0.87, HEIGHT * UNIT + 10,
-                             window=policy_button)
+        button.configure(width=10, activebackground="#33B5E5")
+        canvas.create_window(WIDTH * UNIT * 0.37, HEIGHT * UNIT + 16,
+                             window=button)
+        button = Button(self, text="Move", command=self.move_by_policy)
+        button.configure(width=10, activebackground="#33B5E5")
+        canvas.create_window(WIDTH * UNIT * 0.62, HEIGHT * UNIT + 16,
+                             window=button)
+        button = Button(self, text="Reset", command=self.reset)
+        button.configure(width=10, activebackground="#33B5E5")
+        canvas.create_window(WIDTH * UNIT * 0.87, HEIGHT * UNIT + 16,
+                             window=button)
 
         # create grids
         for col in range(0, WIDTH * UNIT, UNIT):  # 0~400 by 80
@@ -64,10 +66,11 @@ class GraphicDisplay(tk.Tk):
             x0, y0, x1, y1 = 0, row, HEIGHT * UNIT, row
             canvas.create_line(x0, y0, x1, y1)
 
-        # add img to canvas
+        # add img object to canvas
         self.rectangle = canvas.create_image(50, 50, image=self.shapes[0])
         canvas.create_image(250, 150, image=self.shapes[1])
         canvas.create_image(150, 250, image=self.shapes[1])
+        if self.scenario == 'iii': canvas.create_image(250, 350, image=self.shapes[1])
         canvas.create_image(250, 250, image=self.shapes[2])
 
         # pack all
@@ -86,6 +89,7 @@ class GraphicDisplay(tk.Tk):
         return (up, down, left, right), (rectangle, triangle, circle)
 
     def reset(self):
+        # Clicking Reset Button
         if self.is_moving == 0:
             self.evaluation_count = 0
             self.improvement_count = 0
@@ -98,8 +102,14 @@ class GraphicDisplay(tk.Tk):
             self.agent.policy_table = ([[[0.25, 0.25, 0.25, 0.25]] * WIDTH
                                         for _ in range(HEIGHT)])
             self.agent.policy_table[2][2] = []
+            # move rectangle to the original position
             x, y = self.canvas.coords(self.rectangle)
             self.canvas.move(self.rectangle, UNIT / 2 - x, UNIT / 2 - y)
+            # display rewards text
+            self.text_reward(row=2, col=2, contents="R : 1.0")
+            self.text_reward(1, 2, "R : -1.0")
+            self.text_reward(2, 1, "R : -1.0")
+            if self.scenario == 'iii': self.text_reward(3, 2, "R : -1.0")
 
     def text_value(self, row, col, contents, font='Helvetica', size=10,
                    style='normal', anchor="nw"):
@@ -115,7 +125,7 @@ class GraphicDisplay(tk.Tk):
         origin_x, origin_y = 5, 5
         x, y = origin_y + (UNIT * col), origin_x + (UNIT * row)
         font = (font, str(size), style)
-        text = self.canvas.create_text(x, y, fill="black", text=contents,
+        text = self.canvas.create_text(x, y, fill="red", text=contents,
                                        font=font, anchor=anchor)
         return self.texts.append(text)
 
@@ -141,6 +151,7 @@ class GraphicDisplay(tk.Tk):
         return int(y), int(x)
 
     def move_by_policy(self):
+        # Clicking Move Button
         if self.improvement_count != 0 and self.is_moving != 1:
             self.is_moving = 1
 
@@ -191,6 +202,7 @@ class GraphicDisplay(tk.Tk):
         self.update()
 
     def evaluate_policy(self):
+        # Clicking Evaluate Button
         self.evaluation_count += 1
         for i in self.texts:
             self.canvas.delete(i)
@@ -198,6 +210,7 @@ class GraphicDisplay(tk.Tk):
         self.print_value_table(self.agent.value_table)
 
     def improve_policy(self):
+        # Clicking Improve Button
         self.improvement_count += 1
         for i in self.arrows:
             self.canvas.delete(i)
@@ -206,7 +219,7 @@ class GraphicDisplay(tk.Tk):
 
 
 class Env:
-    def __init__(self):
+    def __init__(self, scenario):
         self.transition_probability = TRANSITION_PROB
         self.width = WIDTH
         self.height = HEIGHT
@@ -215,6 +228,7 @@ class Env:
         self.reward[2][2] = 1  # reward 1 for circle
         self.reward[1][2] = -1  # reward -1 for triangle
         self.reward[2][1] = -1  # reward -1 for triangle
+        if scenario == 'iii': self.reward[3][2] = -1  # reward -1 for triangle
         self.all_state = []
 
         for x in range(WIDTH):

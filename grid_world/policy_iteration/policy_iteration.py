@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import random
 from environment import GraphicDisplay, Env
+import sys
 
 
 class PolicyIteration:
@@ -95,8 +96,24 @@ class PolicyIteration:
     def get_value(self, state):
         return round(self.value_table[state[0]][state[1]], 2)
 
+
+def check_if_have_none_or_more_then_two_argument():
+    return len(sys.argv) < 2 or len(sys.argv) > 2
+
+
+def check_if_argument_value_invalid():
+    return sys.argv[1] != 'ii' and sys.argv[1] != 'iii'
+
+def exit_and_print_error():
+    sys.exit('You should specify one argument: ii or iii')
+
+
 if __name__ == "__main__":
-    env = Env()
-    policy_iteration = PolicyIteration(env)
-    grid_world = GraphicDisplay(policy_iteration)
-    grid_world.mainloop()
+    if check_if_have_none_or_more_then_two_argument() or check_if_argument_value_invalid():
+        exit_and_print_error()
+    else:
+        scenario = sys.argv[1]
+        env = Env(scenario)
+        policy_iteration = PolicyIteration(env)
+        grid_world = GraphicDisplay(policy_iteration, scenario)
+        grid_world.mainloop()
