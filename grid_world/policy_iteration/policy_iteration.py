@@ -2,23 +2,41 @@
 import random
 from environment import GraphicDisplay, Env
 import sys
+import numpy as np
 
 
 class PolicyIteration:
-    def __init__(self, env):
+    def __init__(self, env, scenario):
         self.env = env
         # 2-d list for the value function
         self.value_table = [[0.0] * env.width for _ in range(env.height)]
+        if scenario == 'ii':
+            self.value_table = self.generate_random_value_table(
+                env.width, env.height)
         # list of random policy (same probability of up, down, left, right)
         self.policy_table = [[[0.25, 0.25, 0.25, 0.25]] * env.width
-                                    for _ in range(env.height)]
+                             for _ in range(env.height)]
+        if scenario == 'ii':
+            self.policy_table = self.generate_random_policy_table(
+                env.width, env.height)
         # setting terminal state
         self.policy_table[2][2] = []
         self.discount_factor = 0.9
 
+    def generate_random_value_table(self, width, height):
+        random.seed(1)
+        value_table = [[round(random.random(), 2)] *
+                       width for _ in range(height)]
+        return value_table
+
+    def generate_random_policy_table(self, width, height):
+        r = list(np.random.dirichlet(np.ones(4), size=1).ravel())
+        policy_table = [[r] * width for _ in range(height)]
+        return policy_table
+
     def policy_evaluation(self):
         next_value_table = [[0.00] * self.env.width
-                                    for _ in range(self.env.height)]
+                            for _ in range(self.env.height)]
 
         # Bellman Expectation Equation for the every states
         for state in self.env.get_all_states():
@@ -102,10 +120,11 @@ def check_if_have_none_or_more_then_two_argument():
 
 
 def check_if_argument_value_invalid():
-    return sys.argv[1] != 'ii' and sys.argv[1] != 'iii'
+    return sys.argv[1] != 'i' and sys.argv[1] != 'ii' and sys.argv[1] != 'iii'
+
 
 def exit_and_print_error():
-    sys.exit('You should specify one argument: ii or iii')
+    sys.exit('You should specify one argument: i, ii, or iii')
 
 
 if __name__ == "__main__":
@@ -114,6 +133,6 @@ if __name__ == "__main__":
     else:
         scenario = sys.argv[1]
         env = Env(scenario)
-        policy_iteration = PolicyIteration(env)
+        policy_iteration = PolicyIteration(env, scenario)
         grid_world = GraphicDisplay(policy_iteration, scenario)
         grid_world.mainloop()

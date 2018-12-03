@@ -10,7 +10,8 @@ HEIGHT = 5  # grid height
 WIDTH = 5  # grid width
 TRANSITION_PROB = 1
 POSSIBLE_ACTIONS = [0, 1, 2, 3]  # up, down, left, right
-ACTIONS = [(-1, 0), (1, 0), (0, -1), (0, 1)]  # actions in coordinates
+# actions in coordinates (row, col)
+ACTIONS = [(-1, 0), (1, 0), (0, -1), (0, 1)]
 REWARDS = []
 
 
@@ -32,7 +33,8 @@ class GraphicDisplay(tk.Tk):
         self.text_reward(row=2, col=2, contents="R : 1.0")
         self.text_reward(1, 2, "R : -1.0")
         self.text_reward(2, 1, "R : -1.0")
-        if self.scenario == 'iii': self.text_reward(3, 2, "R : -1.0")
+        if self.scenario == 'iii':
+            self.text_reward(3, 2, "R : -1.0")
 
     def _build_canvas(self):
         canvas = tk.Canvas(self, bg='white',
@@ -40,12 +42,12 @@ class GraphicDisplay(tk.Tk):
                            width=WIDTH * UNIT)
         # buttons
         button = Button(self, text="Evaluate",
-                                  command=self.evaluate_policy)
+                        command=self.evaluate_policy)
         button.configure(width=10, activebackground="#33B5E5")
         canvas.create_window(WIDTH * UNIT * 0.13, HEIGHT * UNIT + 16,
                              window=button)
         button = Button(self, text="Improve",
-                               command=self.improve_policy)
+                        command=self.improve_policy)
         button.configure(width=10, activebackground="#33B5E5")
         canvas.create_window(WIDTH * UNIT * 0.37, HEIGHT * UNIT + 16,
                              window=button)
@@ -70,7 +72,8 @@ class GraphicDisplay(tk.Tk):
         self.rectangle = canvas.create_image(50, 50, image=self.shapes[0])
         canvas.create_image(250, 150, image=self.shapes[1])
         canvas.create_image(150, 250, image=self.shapes[1])
-        if self.scenario == 'iii': canvas.create_image(250, 350, image=self.shapes[1])
+        if self.scenario == 'iii':
+            canvas.create_image(250, 350, image=self.shapes[1])
         canvas.create_image(250, 250, image=self.shapes[2])
 
         # pack all
@@ -83,8 +86,10 @@ class GraphicDisplay(tk.Tk):
         right = PhotoImage(Image.open("../img/right.png").resize((13, 13)))
         left = PhotoImage(Image.open("../img/left.png").resize((13, 13)))
         down = PhotoImage(Image.open("../img/down.png").resize((13, 13)))
-        rectangle = PhotoImage(Image.open("../img/rectangle.png").resize((65, 65)))
-        triangle = PhotoImage(Image.open("../img/triangle.png").resize((65, 65)))
+        rectangle = PhotoImage(Image.open(
+            "../img/rectangle.png").resize((65, 65)))
+        triangle = PhotoImage(Image.open(
+            "../img/triangle.png").resize((65, 65)))
         circle = PhotoImage(Image.open("../img/circle.png").resize((65, 65)))
         return (up, down, left, right), (rectangle, triangle, circle)
 
@@ -109,7 +114,8 @@ class GraphicDisplay(tk.Tk):
             self.text_reward(row=2, col=2, contents="R : 1.0")
             self.text_reward(1, 2, "R : -1.0")
             self.text_reward(2, 1, "R : -1.0")
-            if self.scenario == 'iii': self.text_reward(3, 2, "R : -1.0")
+            if self.scenario == 'iii':
+                self.text_reward(3, 2, "R : -1.0")
 
     def text_value(self, row, col, contents, font='Helvetica', size=10,
                    style='normal', anchor="nw"):
@@ -228,7 +234,8 @@ class Env:
         self.reward[2][2] = 1  # reward 1 for circle
         self.reward[1][2] = -1  # reward -1 for triangle
         self.reward[2][1] = -1  # reward -1 for triangle
-        if scenario == 'iii': self.reward[3][2] = -1  # reward -1 for triangle
+        if scenario == 'iii':
+            self.reward[3][2] = -1  # reward -1 for triangle
         self.all_state = []
 
         for x in range(WIDTH):
